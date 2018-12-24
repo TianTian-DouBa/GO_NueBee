@@ -22,6 +22,5 @@ func GetMac() (mac_addresses []string) {
 }
 
 func main() {
-	fmt.Printf("mac addresses: %v\n", GetMac())
 	fmt.Printf("mac addresses: %q\n", GetMac())
 }
