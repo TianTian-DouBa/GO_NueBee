@@ -2,25 +2,40 @@ package main
 
 import (
 	"fmt"
-	"net"
+	//"net"
+	. "./xf_utility"
 )
 
-func GetMac() (mac_addresses []string) {
-	net_interfaces, err := net.Interfaces()
-	if err != nil {
-		fmt.Printf("fail to get network interfaces: %v", err)
-		return nil
-	}
-	for _, net_interface := range net_interfaces {
-		mac_address := net_interface.HardwareAddr.String()
-		if len(mac_address) == 0 {
-			continue
-		}
-		mac_addresses = append(mac_addresses, mac_address)
-	}
-	return mac_addresses
-}
-
 func main() {
-	fmt.Printf("mac addresses: %q\n", GetMac())
+	//init()
+	/*
+	AddLog(10, "test error")
+	AddLog(20, "test warning")
+	AddLog(30, "test info")
+	AddLog(40, "test trace")
+	AddLog(22, "test undefine")
+	*/
+	fmt.Println("----------------getMac---------------")
+	nics, err := GetMac()
+	if err == nil {
+		for _, nic := range nics {
+			fmt.Println(nic.Index, nic.Name, nic.Mac)
+		}
+	}
+	fmt.Println("----------------getMacOne---------------")
+	nics1 := []Nic{
+		{1,"aa","1c:1b:0d:e1:12:eb"},
+		{2,"bb","00:50:56:c0:00:01"},
+		{3,"cc","00:50:56:c0:00:08"},
+		{4,"dd","1b:1b:0d:e1:12:eb"},
+	}
+	result, err := GetMacOne(nics1)
+	if err == nil {
+		fmt.Println(result)
+	}
+	fmt.Println("----------------bios uuid---------------")
+	biosUuid, err := GetBiosUuid()
+	if err == nil {
+		fmt.Print(biosUuid)
+	}
 }
