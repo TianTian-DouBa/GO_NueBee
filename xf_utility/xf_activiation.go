@@ -20,6 +20,7 @@ var macReserved = []string {
     "00:15:5d", //Hyper-V
 }
 
+var revId string = "Lite_0.10a"
 var forfun string = "5h3u!j.x(ne=485j"
 var dashu string = "cvbdg/fgk2#2"
 var tyejj string = "hesg"
@@ -154,6 +155,7 @@ func rawId() (string, error) {
         } else {
             return "", errors.New("get bcbg fail") //bios
         }
+        result += "#rv#" + revId + "#/rv#"
         t := time.Now()
         result += "#dt#" + t.Format("2006-01-02 15:04:05") + "#/dt#"
         cpuid, err := getCpuid()
