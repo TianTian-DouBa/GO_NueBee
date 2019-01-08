@@ -11,7 +11,7 @@ func TestGetMacOne(t *testing.T) {
 		{3,"cc","00:50:56:c0:00:08"},
 		{4,"dd","1b:1b:0d:e1:12:eb"},
 	}
-	result, err := GetMacOne(nics1)
+	result, err := getMacOne(nics1)
 	if (err == nil) && (result == "1b:1b:0d:e1:12:eb") {
 		t.Log("pass")
 	} else {
@@ -24,7 +24,7 @@ func TestGetMacOne(t *testing.T) {
 		{4,"dd","00:15:5d:e1:12:eb"},
 		{3,"cc","00:50:56:c0:00:08"},
 	}
-	result, err = GetMacOne(nics2)
+	result, err = getMacOne(nics2)
 	if (err == nil) && (result == "00:15:5d:e1:12:eb") {
 		t.Log("pass")
 	} else {
@@ -32,7 +32,7 @@ func TestGetMacOne(t *testing.T) {
 	}
 
 	nics3 := []Nic{}
-	result, err = GetMacOne(nics3)
+	result, err = getMacOne(nics3)
 	if (err == nil) && (result == "") {
 		t.Log("pass")
 	} else {
@@ -53,7 +53,7 @@ func TestGetMacOne(t *testing.T) {
 		{11,"dd","36:15:5d:e1:12:aa"},
 		{12,"cc","28:50:56:c0:00:aa"},
 	}
-	result, err = GetMacOne(nics4)
+	result, err = getMacOne(nics4)
 	if (err == nil) && (result == "19:50:56:e1:12:aa") {
 		t.Log("pass")
 	} else {
