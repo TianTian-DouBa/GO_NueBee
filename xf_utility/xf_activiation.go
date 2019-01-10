@@ -3,7 +3,7 @@ package xf_utility
 import (
     "net"
     "os/exec"
-    //"fmt"
+    "fmt"
     "strings"
     "sort"
     "errors"
@@ -12,6 +12,7 @@ import (
     "crypto/cipher"
     "encoding/base64"
     "bytes"
+    "golang.org/x/sys/windows/registry"
 )
 
 var macReserved = []string {
@@ -138,6 +139,15 @@ func getHdid() (string, error) {
     return sout, nil
 }
 
+func getOs() (string, error) {
+    key, _ := registry.OpenKey(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows NT\CurrentVersion`, registry.QUERY_VALUE) // error discarded for brevity
+    defer key.Close()
+    productName, _, _ := key.GetStringValue("ProductName") // error discarded for brevity
+    osBit := 32 << (^uint(0) >> 63) //返回64或32位系统
+    result := fmt.Sprintln(productName, osBit)
+    return result, nil
+}
+
 //rawId: raw string for activiation 
 func rawId() (string, error) {
     nics, err := getMac()
@@ -158,6 +168,13 @@ func rawId() (string, error) {
         result += "#rv#" + revId + "#/rv#"
         t := time.Now()
         result += "#dt#" + t.Format("2006-01-02 15:04:05") + "#/dt#"
+        os, err := getOs()
+        if err == nil {
+            os = strings.TrimSpace(os)
+            result += "#os#" + os + "#/os#"
+        } else {
+            result += "#os##/os#"
+        }
         cpuid, err := getCpuid()
         if err == nil {
             result += "#cda#" + cpuid + "#/cda#"
