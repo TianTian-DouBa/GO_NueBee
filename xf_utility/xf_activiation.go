@@ -135,7 +135,9 @@ func getHdid() (string, error) {
         return "", err
     }
     sout := strings.Replace(string(out),"SerialNumber      \r\r\n","",1)
+    sout = strings.Replace(string(sout),"  \r\r\n","|",1)
     sout = strings.TrimSpace(sout)
+    fmt.Printf("%q", sout)
     return sout, nil
 }
 
@@ -193,7 +195,7 @@ func rawId() (string, error) {
     }
 }
 
-func coating(rawid string) (string, error) {
+func coating(rawid string) ([]byte, error) {
     lenBraw := len(rawid)
     if lenBraw > 98 {
         braw := []byte(rawid)
@@ -204,9 +206,9 @@ func coating(rawid string) (string, error) {
         for k, v := range swd {
 			braw[k], braw[v] = braw[v], braw[k]
         }
-        return string(braw), nil
+        return braw, nil
     } else {
-        return "", errors.New("rawid invalid")
+        return nil, errors.New("rawid invalid")
     }
 }
 
@@ -228,25 +230,6 @@ func padding(origText []byte, blocksize int) []byte {
     return append(origText, padtext...)
 }
 
-//MakeATxt: create encrpted txt
-func MakeATxt() string {
-    raw, err := rawId()
-    if err == nil {
-        strCoated, err := coating(raw)
-        if err == nil {
-            smile := forfun + dashu + tyejj
-            result := encrypt(strCoated, smile)
-            return result
-        } else {
-            AddLog(10,"[fn]coating: Failed to generate txt for Activiation. err:" + err.Error())
-            return ""
-        }
-    } else {
-        AddLog(10,"[fn]rawId: Failed to generate txt for Activiation. err:" + err.Error())
-        return ""
-    }
-}
-
 func unPadding(paddedData []byte) []byte {
     length := len(paddedData)
     unpadlen := int(paddedData[length-1])
@@ -263,6 +246,29 @@ func decrypt(raw string, key string) string {
     blockMode.CryptBlocks(orig, braw)
     orig = unPadding(orig)
     return string(orig)
+}
+
+func MakeATxt() []byte {
+    raw, err := rawId()
+    if err == nil {
+        bytesCoated, err := coating(raw)
+        if err == nil {
+            result, err := RsaEncrypt(bytesCoated)
+            if err == nil {
+                return result
+            } else {
+                AddLog(10,"[fn]MakeATxt: Failed to generate txt for Activiation. err:" + err.Error())
+                return nil
+            }
+
+        } else {
+            AddLog(10,"[fn]MakeATxt: Failed to generate txt for Activiation. err:" + err.Error())
+            return nil
+        }
+    } else {
+        AddLog(10,"[fn]MakeATxt: Failed to generate txt for Activiation. err:" + err.Error())
+        return nil
+    }
 }
 
 func OpenATxt(raw string) (string, error) {
