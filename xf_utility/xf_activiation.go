@@ -13,6 +13,7 @@ import (
     "encoding/base64"
     "bytes"
     "golang.org/x/sys/windows/registry"
+    "io/ioutil"
 )
 
 var macReserved = []string {
@@ -25,6 +26,7 @@ var revId string = "Lite_0.10a"
 var forfun string = "5h3u!j.x(ne=485j"
 var dashu string = "cvbdg/fgk2#2"
 var tyejj string = "hesg"
+var rtnstr string = "MTshea8TvrR59bS55w6LCYPqvlk5oHRF"
 
 var swd = map[int]int {
     0 : 23,
@@ -150,6 +152,24 @@ func getOs() (string, error) {
     return result, nil
 }
 
+func getTb() (string, error) {
+    path := `D:\DeltaV\DVdata\Import-Export`
+    result := ""
+    files, err := ioutil.ReadDir(path)
+    if err != nil {
+        AddLog(20,"[fn]getTb, failed to get TB info. err: " + err.Error())
+        return "", err
+    } else {
+        for _, file := range files {
+            if file.IsDir() {
+                if result != "" {result += `|`}
+                result += file.Name()
+            }
+        }
+        return result, nil
+    }
+}
+
 //rawId: raw string for activiation 
 func rawId() (string, error) {
     nics, err := getMac()
@@ -176,6 +196,12 @@ func rawId() (string, error) {
             result += "#os#" + os + "#/os#"
         } else {
             result += "#os##/os#"
+        }
+        tbRev, err := getTb()
+        if err == nil {
+            result += "#tb#" + tbRev + "#/tb#"
+        } else {
+            result += "#tb##/tb#"
         }
         cpuid, err := getCpuid()
         if err == nil {

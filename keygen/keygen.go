@@ -76,6 +76,7 @@ var swd = map[int]int {
     20 : 43,
     31 : 47,
 }
+var rtnstr string = "MTshea8TvrR59bS55w6LCYPqvlk5oHRF"
 
 func main() {
 	path := `.\nb_active.dt`
@@ -107,6 +108,7 @@ func RsaDecrypt(ciphertext []byte) ([]byte, error) {
     return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
 }
 
+//去掉混淆
 func decoating (coated []byte) ([]byte, error) {
 	lens := len(coated)
 	if lens > 98 {
@@ -121,7 +123,11 @@ func decoating (coated []byte) ([]byte, error) {
 	} else {
 		return nil, errors.New("coated input invalid")
 	}
+}
 
+//提取信息
+func extractInfo() {
+	return
 }
 
 //MakeKey: generate key TBD,生成的Key文件以此对称加密
