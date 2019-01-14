@@ -126,6 +126,7 @@ func getCpuid() (string, error) {
         return "", err
     }
     sout := strings.Replace(string(out),"ProcessorId       \r\r\n","",1)
+    sout = strings.Replace(string(sout),"  \r\r\n","|",0)
     sout = strings.TrimSpace(sout)
     return sout, nil
 }
@@ -137,7 +138,7 @@ func getHdid() (string, error) {
         return "", err
     }
     sout := strings.Replace(string(out),"SerialNumber      \r\r\n","",1)
-    sout = strings.Replace(string(sout),"  \r\r\n","|",1)
+    sout = strings.Replace(string(sout),"  \r\r\n","|",0)
     sout = strings.TrimSpace(sout)
     fmt.Printf("%q", sout)
     return sout, nil

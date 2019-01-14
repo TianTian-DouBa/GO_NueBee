@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"regexp"
 )
 
 var privateKey []byte
@@ -87,6 +88,12 @@ func main() {
 			result, err := decoating(deData)
 			if err == nil {
 				fmt.Println(string(result))
+				aHost := extractInfo(result)
+				fmt.Println("-----------------")
+				fmt.Println(aHost.Mac)
+				fmt.Println(aHost.BiosUuid)
+				fmt.Println(aHost.NbRev)
+
 			} else {
 				AddLog(10,"[fn]main: Failed to generate key:" + err.Error())
 			}
@@ -125,9 +132,29 @@ func decoating (coated []byte) ([]byte, error) {
 	}
 }
 
+type Activiator struct {
+	Mac string
+	BiosUuid string
+	NbRev string
+	ExpDate string
+	OpSys string
+	TbRev string
+	Cpu	string
+	Disk string
+}
+
 //提取信息
-func extractInfo() {
-	return
+func extractInfo(bInfo []byte) (*Activiator) {
+	AHost := new(Activiator)
+	AHost.Mac = string(bInfo[:17])
+	AHost.BiosUuid = string(bInfo[17:53])
+	strInfo := string(bInfo)
+	re := regexp.MustCompile(`#rv#(.*)#/rv#`)
+	foundStr := re.FindString(strInfo)
+	AHost.NbRev := foundStr[4:-3]
+	fmt.Println(foundStr)
+
+	return AHost
 }
 
 //MakeKey: generate key TBD,生成的Key文件以此对称加密
