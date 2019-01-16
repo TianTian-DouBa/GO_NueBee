@@ -15,7 +15,7 @@ func ReadFileAll(path string) ([]byte, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		errorStr := "[fn]ReadFileAll: err.Error()"
-		AddLog(20,errorStr)
+		AddLog(20, errorStr)
 		return nil, err
 	} else {
 		return data, nil

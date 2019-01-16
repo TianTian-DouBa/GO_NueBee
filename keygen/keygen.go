@@ -1,14 +1,19 @@
 package main
 
 import (
-	"fmt"
-	. "../xf_utility"
+	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"regexp"
+
+	. "../xf_utility"
 )
 
 var privateKey []byte
@@ -64,18 +69,18 @@ FaU1osJk/VJeLhOqOB1CtFvOqW7ZZBDz303DzmgCLOrDlv4E5qpLv8yaKATe6jkC
 GGtoAO+3HS1gvSCHXNtc/SLngkTOEjCrHq3j1yRTkrzy8oKxiseM0dESrCLQTDY=
 -----END RSA PRIVATE KEY-----
 `
-var smile string = "Lite_0.10a5h3u!j.x(ne=485jcvbdg/fgk2#2"
-var swd = map[int]int {
-    0 : 23,
-    3 : 12,
-    5 : 34,
-    8 : 19,
-    9 : 51,
-    11 : 25,
-    13 : 21,
-    17 : 26,
-    20 : 43,
-    31 : 47,
+var smile string = "5h3u!j.x(ne=485jcvbdg/fgk2#2hesg"
+var swd = map[int]int{
+	0:  23,
+	3:  12,
+	5:  34,
+	8:  19,
+	9:  51,
+	11: 25,
+	13: 21,
+	17: 26,
+	20: 43,
+	31: 47,
 }
 var rtnstr string = "MTshea8TvrR59bS55w6LCYPqvlk5oHRF"
 
@@ -90,41 +95,55 @@ func main() {
 				fmt.Println(string(result))
 				aHost := extractInfo(result)
 				fmt.Println("-----------------")
-				fmt.Println(aHost.Mac)
-				fmt.Println(aHost.BiosUuid)
-				fmt.Println(aHost.NbRev)
-
+				fmt.Println("MAC: ", aHost.Mac)
+				fmt.Println("BIOS UUID: ", aHost.BiosUuid)
+				fmt.Println("NB Rev.: ", aHost.NbRev)
+				fmt.Println("Date Time: ", aHost.ExpDate)
+				fmt.Println("OS: ", aHost.OpSys)
+				fmt.Println("TB Rev.:", aHost.TbRev)
+				fmt.Println("CPU: ", aHost.Cpu)
+				fmt.Println("Disk: ", aHost.Disk)
+				activeKey, _ := keyGen(aHost)
+				sEptd := encrypt(activeKey, smile)
+				bEptd := []byte(sEptd)
+				path := `.\ActiveKey.dt`
+				WriteFileIoutil(path, bEptd)
+				fmt.Println(string(bEptd))
 			} else {
-				AddLog(10,"[fn]main: Failed to generate key:" + err.Error())
+				AddLog(10, "[fn]main: Failed to generate key:"+err.Error())
 			}
-			
+
 		}
 	}
 }
 
 // 私钥解密
 func RsaDecrypt(ciphertext []byte) ([]byte, error) {
-    block, _ := pem.Decode([]byte(privateKeyS))
-    if block == nil {
-        return nil, errors.New("invalid privateKey")
-    }
-    priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-    if err != nil {
-        return nil, err
-    }
-    return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
+	block, _ := pem.Decode([]byte(privateKeyS))
+	if block == nil {
+		return nil, errors.New("invalid privateKey")
+	}
+	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	return rsa.DecryptPKCS1v15(rand.Reader, priv, ciphertext)
 }
 
 //去掉混淆
-func decoating (coated []byte) ([]byte, error) {
+func decoating(coated []byte) ([]byte, error) {
 	lens := len(coated)
 	if lens > 98 {
 		for k, v := range swd {
 			coated[k], coated[v] = coated[v], coated[k]
 		}
-		for i := 0; i < 53 ; i += 1 {
-			if coated[i] == 120 {coated[i] = 58}
-			if coated[i] == 107 {coated[i] = 45}
+		for i := 0; i < 53; i += 1 {
+			if coated[i] == 120 {
+				coated[i] = 58
+			}
+			if coated[i] == 107 {
+				coated[i] = 45
+			}
 		}
 		return coated, nil
 	} else {
@@ -133,28 +152,69 @@ func decoating (coated []byte) ([]byte, error) {
 }
 
 type Activiator struct {
-	Mac string
+	Mac      string
 	BiosUuid string
-	NbRev string
-	ExpDate string
-	OpSys string
-	TbRev string
-	Cpu	string
-	Disk string
+	NbRev    string
+	ExpDate  string
+	OpSys    string
+	TbRev    string
+	Cpu      string
+	Disk     string
 }
 
 //提取信息
-func extractInfo(bInfo []byte) (*Activiator) {
+func extractInfo(bInfo []byte) *Activiator {
 	AHost := new(Activiator)
 	AHost.Mac = string(bInfo[:17])
 	AHost.BiosUuid = string(bInfo[17:53])
 	strInfo := string(bInfo)
 	re := regexp.MustCompile(`#rv#(.*)#/rv#`)
 	foundStr := re.FindString(strInfo)
-	AHost.NbRev := foundStr[4:-3]
-	fmt.Println(foundStr)
-
+	AHost.NbRev = foundStr[4 : len(foundStr)-5]
+	//datetime
+	re = regexp.MustCompile(`#dt#(.*)#/dt#`)
+	foundStr = re.FindString(strInfo)
+	AHost.ExpDate = foundStr[4 : len(foundStr)-5]
+	re = regexp.MustCompile(`#os#(.*)#/os#`)
+	foundStr = re.FindString(strInfo)
+	AHost.OpSys = foundStr[4 : len(foundStr)-5]
+	re = regexp.MustCompile(`#tb#(.*)#/tb#`)
+	foundStr = re.FindString(strInfo)
+	AHost.TbRev = foundStr[4 : len(foundStr)-5]
+	re = regexp.MustCompile(`#cda#(.*)#/cda#`)
+	foundStr = re.FindString(strInfo)
+	AHost.Cpu = foundStr[5 : len(foundStr)-6]
+	re = regexp.MustCompile(`#hcd#(.*)#/hcd#`)
+	foundStr = re.FindString(strInfo)
+	AHost.Disk = foundStr[5 : len(foundStr)-6]
 	return AHost
+}
+
+func keyGen(act *Activiator) ([]byte, error) {
+	if (len(act.Mac) == 17) && (len(act.BiosUuid) == 36) {
+		key := act.Mac + `|` + act.BiosUuid + `|` + rtnstr
+		return []byte(key), nil
+	} else {
+		return nil, errors.New("invalid Activiator")
+	}
+}
+
+//对称加密
+func encrypt(braw []byte, key string) string {
+	bkey := []byte(key)
+	block, _ := aes.NewCipher(bkey)
+	blockSize := block.BlockSize()
+	braw = padding(braw, blockSize)
+	blockMode := cipher.NewCBCEncrypter(block, bkey[:blockSize])
+	cryted := make([]byte, len(braw))
+	blockMode.CryptBlocks(cryted, braw)
+	return base64.StdEncoding.EncodeToString(cryted)
+}
+
+func padding(origText []byte, blocksize int) []byte {
+	padlen := blocksize - len(origText)%blocksize
+	padtext := bytes.Repeat([]byte{byte(padlen)}, padlen)
+	return append(origText, padtext...)
 }
 
 //MakeKey: generate key TBD,生成的Key文件以此对称加密
