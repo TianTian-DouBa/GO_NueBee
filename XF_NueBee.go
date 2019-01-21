@@ -1,5 +1,6 @@
 package main
 
+import "C"
 import (
 	"fmt"
 	//"net"
@@ -39,4 +40,13 @@ func main() {
 	fmt.Println("-----------read file-------------")
 	des, _ := ValidKey()
 	fmt.Println(des)
+
+	resulte := Addc(11, 23)
+	fmt.Println(resulte)
+}
+
+//export tstc
+func tstc(inp int) int {
+	outp := inp
+	return outp
 }

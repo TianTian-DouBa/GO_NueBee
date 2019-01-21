@@ -126,8 +126,8 @@ func getCpuid() (string, error) {
 		return "", err
 	}
 	sout := strings.Replace(string(out), "ProcessorId       \r\r\n", "", 1)
-    sout = strings.TrimSpace(sout)
-    sout = strings.Replace(string(sout), "  \r\r\n", "|", -1)
+	sout = strings.TrimSpace(sout)
+	sout = strings.Replace(string(sout), "  \r\r\n", "|", -1)
 	return sout, nil
 }
 
@@ -136,9 +136,9 @@ func getHdid() (string, error) {
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", err
-    }
-    sout := strings.Replace(string(out), "SerialNumber", "", 1)
-    sout = strings.TrimSpace(sout)
+	}
+	sout := strings.Replace(string(out), "SerialNumber", "", 1)
+	sout = strings.TrimSpace(sout)
 	sout = strings.Replace(sout, "  \r\r\n", "|", -1)
 	return sout, nil
 }
@@ -325,4 +325,10 @@ func OpenATxt(raw string) (string, error) {
 	} else {
 		return "", errors.New("raw invalid")
 	}
+}
+
+//export Addc
+func Addc(inp1 int, inp2 int) int {
+	outp := inp1 + inp2
+	return outp
 }
