@@ -48,7 +48,9 @@ type Nic struct {
 	Mac   string
 }
 
-func main() {}
+func main() {
+	WriteActiveFile()
+}
 
 func getMac() ([]Nic, error) {
 	itfs, err := net.Interfaces()
@@ -293,7 +295,7 @@ func makeATxt() ([]byte, error) {
 	}
 }
 
-//exprot WriteActiveFile
+//export WriteActiveFile
 func WriteActiveFile() (failed C._Bool) {
 	path := `.\nb_active.dt`
 	raw, err := makeATxt()
@@ -339,10 +341,4 @@ func ValidKey() (match C._Bool) {
 		//failed = true
 		return
 	}
-}
-
-//export Addc
-func Addc(inp1 int, inp2 int) int {
-	outp := inp1 + inp2
-	return outp
 }

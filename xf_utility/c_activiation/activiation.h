@@ -65,9 +65,9 @@ extern "C" {
 #endif
 
 
-extern _Bool ValidKey();
+extern _Bool WriteActiveFile();
 
-extern GoInt Addc(GoInt p0, GoInt p1);
+extern _Bool ValidKey();
 
 #ifdef __cplusplus
 }
