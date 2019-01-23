@@ -326,9 +326,3 @@ func OpenATxt(raw string) (string, error) {
 		return "", errors.New("raw invalid")
 	}
 }
-
-//export Addc
-func Addc(inp1 int, inp2 int) int {
-	outp := inp1 + inp2
-	return outp
-}
