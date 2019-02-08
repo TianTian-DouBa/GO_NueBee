@@ -48,6 +48,8 @@ type Nic struct {
 	Mac   string
 }
 
+func main() {}
+
 func getMac() ([]Nic, error) {
 	itfs, err := net.Interfaces()
 	if err != nil {
