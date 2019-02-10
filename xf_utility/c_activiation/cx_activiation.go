@@ -48,7 +48,18 @@ type Nic struct {
 	Mac   string
 }
 
-func main() {}
+func main() {
+	//start_s := `"2018-11-01 13:07:25"`
+	//start_s := `01/NOV/2018 13:07:25`
+	start_s := `2018/11/01 13:07:25`
+	end_s := `2018/12/01 03:07:25`
+	trends_s := `(SIM-001/SIN.CV, SIM-001/RAMP.CV, , , V1-COMMON/BATCH_ID.CV)`
+	err := runChs(start_s,end_s,trends_s)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("run finished")
+}
 
 func getMac() ([]Nic, error) {
 	itfs, err := net.Interfaces()
