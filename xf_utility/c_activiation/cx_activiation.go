@@ -49,14 +49,17 @@ type Nic struct {
 }
 
 func main() {
-	start_s := `2018/11/01 13:07:25`
-	end_s := `2018/12/01 03:07:25`
+	start_s := `2018/10/31 22:28:12`
+	end_s := `2018/10/31 22:58:12`
 	trends_s := "SIM-001/SIN.CV, SIM-001/RAMP.CV, , , V1-COMMON/BATCH_ID.CV"
-	err := runChs(start_s,end_s,trends_s)
-	if err != nil {
-		fmt.Println(err)
+	compare := true
+	startTime2_s := `2018/08/19 10:15:17`
+
+	success := TrsPlot(start_s,end_s,trends_s, compare, startTime2_s)
+	if success != true {
+		fmt.Println(`failed`)
 	}
-	fmt.Println("run finished")
+	fmt.Println(`run finished`)
 }
 
 func getMac() ([]Nic, error) {
@@ -348,4 +351,25 @@ func ValidKey() (match C._Bool) {
 		//failed = true
 		return
 	}
+}
+
+//exprot TrsPlot
+func TrsPlot(start_s string, end_s string, trends_s string, compare bool, startTime2_s string) (success C._Bool) {
+	var err error
+	if compare == false {
+		err = runChs(start_s, end_s, trends_s)
+		if err !=nil {
+			success = false
+		} else {
+			success = true
+		}
+	} else if compare == true {
+		err = compChs(start_s, end_s, trends_s, startTime2_s)
+		if err !=nil {
+			success = false
+		} else {
+			success = true
+		}
+	}
+	return
 }
