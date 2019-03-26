@@ -7,8 +7,10 @@ import (
 )
 
 var (
-	LogThreadHold int = 30 //to add the log if
-	loggers       map[int]*log.Logger
+	LogThreadHold int = 40 //to add the log if
+	logger *log.Logger
+	//loggers       map[int]*log.Logger
+	logFilePath string = `.\cdll.log`
 )
 
 var LogCategory = map[int]string{
@@ -19,12 +21,29 @@ var LogCategory = map[int]string{
 }
 
 func init() {
+	// If the file doesn't exist, create it, or append to the file
+	logFile, _ := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logger = log.New(logFile, "", log.Ldate|log.Ltime|log.Lshortfile)
+	//logger.SetFlags(log.Ldate|log.Ltime|log.Lshortfile)
+	//logger.SetOutput(logFile)
+	
+	/*
 	handler := os.Stdout
 	loggers = make(map[int]*log.Logger)
 	for k, v := range LogCategory {
 		loggers[k] = log.New(handler, v, log.Ldate|log.Ltime|log.Lshortfile)
 	}
 	loggers[99] = log.New(handler, "[undefine] ", log.Ldate|log.Ltime|log.Lshortfile) //undefined LogCategory
+	*/
+}
+
+//deLogCategory: decode LogCategory int to string
+func deLogCategory(intCategory int) string {
+	strCategory, ok := LogCategory[intCategory]
+	if !ok {
+		strCategory = "[undefine] "
+	}
+	return strCategory
 }
 
 /*AddLog: generate log
@@ -33,6 +52,11 @@ func AddLog(logCategory int, logString string, logArgs ...string) {
 */
 func AddLog(logCategory int, logString string, args ...string) {
 	if logCategory <= LogThreadHold {
+		strCategory := deLogCategory(logCategory)
+		logger.Println(strCategory, logString, "\r\n")
+	}
+	/*
+	if logCategory <= LogThreadHold {
 		_, ok := loggers[logCategory]
 		if ok {
 			loggers[logCategory].Println(logString)
@@ -40,4 +64,5 @@ func AddLog(logCategory int, logString string, args ...string) {
 			loggers[99].Println(logString)
 		}
 	}
+	*/
 }

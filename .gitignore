@@ -1,4 +1,5 @@
 *.pem
 *.exe
 *.dt
+*.log
 debug

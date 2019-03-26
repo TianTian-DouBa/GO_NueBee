@@ -49,6 +49,7 @@ type Nic struct {
 }
 
 func main() {
+	AddLog(20,"test log into file")
 	start_s := `2018/10/31 22:28:12`
 	end_s := `2018/10/31 22:58:12`
 	trends_s := "SIM-001/SIN.CV, SIM-001/RAMP.CV, , , V1-COMMON/BATCH_ID.CV"
@@ -305,6 +306,7 @@ func makeATxt() ([]byte, error) {
 	}
 }
 
+//WriteActiveFile: generate machine file for activiation
 //export WriteActiveFile
 func WriteActiveFile() (failed C._Bool) {
 	path := `.\nb_active.dt`
@@ -353,13 +355,16 @@ func ValidKey() (match C._Bool) {
 	}
 }
 
-//exprot TrsPlot
+//export TrsPlot
 func TrsPlot(start_s string, end_s string, trends_s string, compare bool, startTime2_s string) (success C._Bool) {
+	AddLog(40, "[fn]TrsPlot.start_s:"+start_s)
+	AddLog(40, "[fn]TrsPlot.end_s:"+end_s)
 	var err error
 	if compare == false {
 		err = runChs(start_s, end_s, trends_s)
 		if err !=nil {
 			success = false
+			AddLog(10, "[fn]TrsPlot.error:"+err.Error())
 		} else {
 			success = true
 		}
@@ -367,6 +372,7 @@ func TrsPlot(start_s string, end_s string, trends_s string, compare bool, startT
 		err = compChs(start_s, end_s, trends_s, startTime2_s)
 		if err !=nil {
 			success = false
+			AddLog(10, "[fn]TrsPlot.error:"+err.Error())
 		} else {
 			success = true
 		}
