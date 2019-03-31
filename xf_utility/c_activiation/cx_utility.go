@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"os"
+	"runtime"
+	"path/filepath"
 	//"fmt"
 )
 
@@ -23,7 +25,7 @@ var LogCategory = map[int]string{
 func init() {
 	// If the file doesn't exist, create it, or append to the file
 	logFile, _ := os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	logger = log.New(logFile, "", log.Ldate|log.Ltime|log.Lshortfile)
+	logger = log.New(logFile, "", log.Ldate|log.Ltime)
 	//logger.SetFlags(log.Ldate|log.Ltime|log.Lshortfile)
 	//logger.SetOutput(logFile)
 	
@@ -52,8 +54,11 @@ func AddLog(logCategory int, logString string, logArgs ...string) {
 */
 func AddLog(logCategory int, logString string, args ...string) {
 	if logCategory <= LogThreadHold {
+		skip := 1
+		_, path, line, _ := runtime.Caller(skip)
+		file := filepath.Base(path)
 		strCategory := deLogCategory(logCategory)
-		logger.Println(strCategory, logString, "\r\n")
+		logger.Printf("%s, l:%6d, %s, %s\r\n",file, line, strCategory,logString)
 	}
 	/*
 	if logCategory <= LogThreadHold {
