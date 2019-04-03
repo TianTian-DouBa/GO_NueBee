@@ -49,6 +49,7 @@ type Nic struct {
 }
 
 func main() {
+	/*
 	AddLog(20,"test log into file")
 	start_s := `2018/10/31 22:28:12`
 	end_s := `2018/10/31 22:58:12`
@@ -60,7 +61,9 @@ func main() {
 	if success != true {
 		fmt.Println(`failed`)
 	}
+	*/
 	fmt.Println(`run finished`)
+
 }
 
 func getMac() ([]Nic, error) {
@@ -356,12 +359,12 @@ func ValidKey() (match C._Bool) {
 }
 
 //export TrsPlot
-func TrsPlot(start_s string, end_s string, trends_s string, compare bool, startTime2_s string) (success C._Bool) {
-	AddLog(40, "[fn]TrsPlot.start_s:"+start_s)
-	AddLog(40, "[fn]TrsPlot.end_s:"+end_s)
+func TrsPlot(start_s *C.char, end_s *C.char, trends_s *C.char, compare C._Bool, startTime2_s *C.char) (success C._Bool) {
+	//AddLog(40, "[fn]TrsPlot.start_s:"+C.GoString(start_s))
+	//AddLog(40, "[fn]TrsPlot.end_s:"+C.GoString(end_s))
 	var err error
 	if compare == false {
-		err = runChs(start_s, end_s, trends_s)
+		err = runChs(C.GoString(start_s), C.GoString(end_s), C.GoString(trends_s))
 		if err !=nil {
 			success = false
 			AddLog(10, "[fn]TrsPlot.error:"+err.Error())
@@ -369,7 +372,7 @@ func TrsPlot(start_s string, end_s string, trends_s string, compare bool, startT
 			success = true
 		}
 	} else if compare == true {
-		err = compChs(start_s, end_s, trends_s, startTime2_s)
+		err = compChs(C.GoString(start_s), C.GoString(end_s), C.GoString(trends_s), C.GoString(startTime2_s))
 		if err !=nil {
 			success = false
 			AddLog(10, "[fn]TrsPlot.error:"+err.Error())
@@ -377,5 +380,13 @@ func TrsPlot(start_s string, end_s string, trends_s string, compare bool, startT
 			success = true
 		}
 	}
+	return
+}
+
+//PassStr: for testing only
+//export PassStr
+func PassStr(start_s *C.char) {
+	sToPrint := C.GoString(start_s)
+	AddLog(30, "[fn]PassStr.input:"+sToPrint)
 	return
 }

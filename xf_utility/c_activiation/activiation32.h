@@ -71,7 +71,11 @@ extern _Bool WriteActiveFile();
 
 extern _Bool ValidKey();
 
-extern _Bool TrsPlot(GoString p0, GoString p1, GoString p2, GoUint8 p3, GoString p4);
+extern _Bool TrsPlot(char* p0, char* p1, char* p2, _Bool p3, char* p4);
+
+//PassStr: for testing only
+
+extern void PassStr(char* p0);
 
 #ifdef __cplusplus
 }
